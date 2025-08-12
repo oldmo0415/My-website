@@ -1,67 +1,369 @@
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>个人网站 - 简约风格</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 text-gray-800">
+// MarvelMoviesSite.jsx
+// Single-file React component intended to be used in a Create React App / Vite / Next.js app
+// - Uses Tailwind CSS for styling (ensure Tailwind is set up in your project)
+// - Uses framer-motion for animations
+// - Uses lucide-react for icons
+// - Uses shadcn/ui components optionally (you can remove if not available)
+// Replace placeholder images and YouTube IDs with actual assets when ready.
 
-  <!-- 导航栏 -->
-  <nav class="flex justify-between items-center p-6 max-w-6xl mx-auto">
-    <h1 class="text-2xl font-bold">你的名字</h1>
-    <div class="space-x-6">
-      <a href="#about" class="hover:text-blue-500">关于我</a>
-      <a href="#projects" class="hover:text-blue-500">作品</a>
-      <a href="#contact" class="hover:text-blue-500">联系</a>
+import React, { useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { Search, Calendar, Film, Play } from "lucide-react";
+
+// Example dataset (subset). Extend with full MCU filmography and series.
+const MOVIES = [
+  {
+    id: "ironman",
+    title: "Iron Man",
+    year: 2008,
+    phase: "Phase 1",
+    releaseDate: "2008-05-02",
+    poster: "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=500&q=60",
+    backdrop:
+      "https://images.unsplash.com/photo-1500417148159-3f7a1be4b7d6?auto=format&fit=crop&w=1400&q=80",
+    trailer: "8ugaeA-nMTc", // YouTube video id (placeholder)
+    synopsis:
+      "Tony Stark, a billionaire industrialist and genius inventor, is kidnapped and builds a high-tech suit to escape and becomes Iron Man.",
+  },
+  {
+    id: "theavengers",
+    title: "The Avengers",
+    year: 2012,
+    phase: "Phase 1",
+    releaseDate: "2012-05-04",
+    poster: "https://images.unsplash.com/photo-1506084868230-bb9d95c24759?auto=format&fit=crop&w=500&q=60",
+    backdrop:
+      "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1400&q=80",
+    trailer: "eOrNdBpGMv8",
+    synopsis:
+      "Nick Fury of S.H.I.E.L.D. brings together a team of superheroes to form the Avengers and stop Loki and his alien army.",
+  },
+  {
+    id: "wakandaforever",
+    title: "Black Panther: Wakanda Forever",
+    year: 2022,
+    phase: "Phase 4",
+    releaseDate: "2022-11-11",
+    poster: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=500&q=60",
+    backdrop:
+      "https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=1400&q=80",
+    trailer: "l0U7Sks5o0s",
+    synopsis: "The kingdom of Wakanda fights to protect itself in the wake of King T'Challa's death.",
+  },
+  // --- upcoming example ---
+  {
+    id: "avengers_future",
+    title: "Avengers: The Kang Dynasty (Upcoming)",
+    year: 2026,
+    phase: "Phase 6",
+    releaseDate: "2026-05-02",
+    poster: "https://images.unsplash.com/photo-1517659738206-8f33aeb4e3b5?auto=format&fit=crop&w=500&q=60",
+    backdrop:
+      "https://images.unsplash.com/photo-1482192596544-9eb780fc7f66?auto=format&fit=crop&w=1400&q=80",
+    trailer: "dQw4w9WgXcQ", // replace with actual trailer ID when available
+    synopsis: "The multiverse threatens the world as the Avengers face Kang the Conqueror in a grand showdown.",
+    upcoming: true,
+  },
+];
+
+export default function MarvelMoviesSite() {
+  const [query, setQuery] = useState("");
+  const [phase, setPhase] = useState("All");
+  const [selected, setSelected] = useState(null);
+  const [sortBy, setSortBy] = useState("chron");
+  const [dark, setDark] = useState(false);
+
+  const phases = useMemo(() => ["All", ...new Set(MOVIES.map((m) => m.phase))], []);
+
+  const filtered = useMemo(() => {
+    let list = MOVIES.filter((m) =>
+      m.title.toLowerCase().includes(query.toLowerCase()) ||
+      (m.synopsis && m.synopsis.toLowerCase().includes(query.toLowerCase()))
+    );
+    if (phase !== "All") list = list.filter((m) => m.phase === phase);
+    if (sortBy === "chron") list.sort((a, b) => new Date(a.releaseDate) - new Date(b.releaseDate));
+    else list.sort((a, b) => b.year - a.year);
+    return list;
+  }, [query, phase, sortBy]);
+
+  return (
+    <div className={`${dark ? "dark" : ""}`}>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+        {/* Header */}
+        <header className="max-w-6xl mx-auto p-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 120 }}
+              className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-500 to-yellow-400 flex items-center justify-center text-white font-bold text-xl shadow-lg"
+            >
+              M
+n            </motion.div>
+            <div>
+              <h1 className="text-2xl font-extrabold tracking-tight">Marvel Cinematic Universe — Timeline</h1>
+              <p className="text-sm text-gray-600 dark:text-gray-300">梳理剧情时间线 · 预告汇集 · 影迷互动空间</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setDark((d) => !d)}
+              className="py-2 px-3 rounded-lg bg-white/60 dark:bg-gray-800/60 backdrop-blur hover:scale-105 transition-transform"
+            >
+              {dark ? "浅色" : "暗色"}
+            </button>
+            <a
+              className="inline-flex items-center gap-2 py-2 px-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg"
+              href="#explore"
+            >
+              探索
+            </a>
+          </div>
+        </header>
+
+        {/* Hero */}
+        <section className="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+          <motion.div
+            className="col-span-2 rounded-2xl overflow-hidden relative shadow-2xl"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            style={{ backgroundImage: `url(${MOVIES[1].backdrop})`, backgroundSize: "cover" }}
+          >
+            <div className="p-8 bg-gradient-to-r from-black/50 via-transparent to-transparent min-h-[240px] flex flex-col justify-end">
+              <h2 className="text-4xl font-extrabold">漫威电影宇宙（MCU）时间线全览</h2>
+              <p className="mt-2 text-gray-200 max-w-2xl">从钢铁侠到多元宇宙，追踪角色成长、关键事件与跨片彩蛋。</p>
+              <div className="mt-4 flex gap-3">
+                <a href="#timeline" className="py-2 px-4 rounded bg-red-600 text-white font-semibold">查看时间线</a>
+                <a href="#upcoming" className="py-2 px-4 rounded bg-transparent border border-white/20 text-white">即将上映</a>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Quick Filters / Search */}
+          <aside className="rounded-2xl p-6 shadow-lg bg-white/60 dark:bg-gray-800/60 backdrop-blur">
+            <div className="flex items-center gap-3 mb-4">
+              <Search size={20} />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="flex-1 bg-transparent outline-none"
+                placeholder="搜索影片、角色或剧情关键字..."
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="text-sm">阶段</label>
+              <div className="mt-2 flex gap-2 flex-wrap">
+                {phases.map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPhase(p)}
+                    className={`py-1 px-3 rounded-full text-sm ${phase === p ? "bg-indigo-600 text-white" : "bg-white/40 dark:bg-gray-700/40"}`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <label className="text-sm">排序</label>
+                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="ml-2 bg-transparent outline-none">
+                  <option value="chron">按时间</option>
+                  <option value="recent">按年份（降）</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-sm">活动</label>
+                <div className="mt-1 text-xs text-gray-600">影迷投票 · 时间线模式 · 资料卡</div>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        {/* Timeline & Cards */}
+        <main id="explore" className="max-w-6xl mx-auto p-6">
+          <section id="timeline" className="mb-12">
+            <h3 className="text-2xl font-bold mb-4">时间线</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="col-span-2">
+                {/* Interactive horizontal timeline */}
+                <div className="overflow-x-auto py-4">
+                  <div className="flex gap-6 items-end">
+                    {filtered.map((m) => (
+                      <motion.div
+                        key={m.id}
+                        whileHover={{ scale: 1.03 }}
+                        className="min-w-[220px] bg-white/60 dark:bg-gray-800/60 rounded-2xl p-4 shadow-lg cursor-pointer"
+                        onClick={() => setSelected(m)}
+                      >
+                        <div className="h-40 rounded-lg overflow-hidden mb-3">
+                          <img src={m.poster} alt={m.title} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-gray-300">{m.phase} • {m.year}</div>
+                        <h4 className="font-bold text-lg">{m.title}</h4>
+                        <p className="text-sm mt-2 line-clamp-3 text-gray-700 dark:text-gray-300">{m.synopsis}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* timeline legend / interactive scrubber */}
+                <div className="mt-6 bg-white/50 dark:bg-gray-800/50 rounded-lg p-4">
+                  <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
+                    <div className="flex items-center gap-2"><Calendar size={16} /> 时间轴模式</div>
+                    <div>拖动以聚焦不同年份（示例：静态）</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Side panel: upcoming + gallery */}
+              <aside className="space-y-6">
+                <div id="upcoming" className="rounded-2xl p-4 bg-gradient-to-br from-yellow-50 to-white/30 dark:from-indigo-900/40 dark:to-transparent shadow-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-bold">即将上映</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">聚焦未来大作与最新预告</p>
+                    </div>
+                    <Film size={28} />
+                  </div>
+
+                  <div className="mt-4 space-y-4">
+                    {MOVIES.filter(m => m.upcoming).map(m => (
+                      <div key={m.id} className="rounded-lg bg-white/80 dark:bg-gray-800/60 p-3 flex gap-3 items-center">
+                        <img src={m.poster} alt={m.title} className="w-20 h-28 object-cover rounded-lg" />
+                        <div>
+                          <div className="text-sm text-gray-500">{new Date(m.releaseDate).toLocaleDateString()}</div>
+                          <div className="font-semibold">{m.title}</div>
+                          <button onClick={() => setSelected(m)} className="mt-2 inline-flex items-center gap-2 text-sm">
+                            <Play size={16} /> 观看预告
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl p-4 bg-white/60 dark:bg-gray-800/60 shadow-lg">
+                  <h5 className="font-semibold">图片走廊</h5>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    {MOVIES.slice(0,4).map(m => (
+                      <div key={m.id} className="h-24 overflow-hidden rounded-lg">
+                        <img src={m.backdrop} alt={m.title} className="w-full h-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </section>
+
+          {/* Community Interactions (Voting + Comments placeholder) */}
+          <section className="mb-12">
+            <h3 className="text-2xl font-bold mb-4">影迷互动</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="col-span-2 rounded-2xl p-6 bg-white/60 dark:bg-gray-800/60 shadow-lg">
+                <h4 className="font-semibold">你最期待哪部电影？（投票）</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">（演示：本地状态，不会持久化）</p>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  {MOVIES.map(m => (
+                    <button key={m.id} className="py-3 px-4 rounded-lg bg-transparent border hover:scale-102 transition-transform text-left" onClick={() => alert(`已为 ${m.title} 投票！`)}>
+                      <div className="font-semibold">{m.title}</div>
+                      <div className="text-xs text-gray-500">{m.phase}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <aside className="rounded-2xl p-6 bg-white/60 dark:bg-gray-800/60 shadow-lg">
+                <h5 className="font-semibold">热门话题</h5>
+                <ul className="mt-3 space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                  <li>#多元宇宙讨论</li>
+                  <li>#钢铁侠传奇</li>
+                  <li>#影史彩蛋盘点</li>
+                </ul>
+              </aside>
+            </div>
+          </section>
+
+          {/* Footer */}
+          <footer className="text-center text-sm text-gray-600 dark:text-gray-400 py-8">
+            © {new Date().getFullYear()} 漫威影迷站 — 仅供影迷讨论与时间线梳理使用。资源与预告由第三方平台提供。
+          </footer>
+        </main>
+
+        {/* Modal: Selected movie details + trailer */}
+        {selected && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+            <div className="absolute inset-0 bg-black/60" onClick={() => setSelected(null)}></div>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative max-w-4xl w-full bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-2xl">
+              <div className="grid grid-cols-1 lg:grid-cols-3">
+                <div className="lg:col-span-1">
+                  <img src={selected.poster} alt={selected.title} className="w-full h-full object-cover" />
+                </div>
+                <div className="p-6 lg:col-span-2">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="text-2xl font-bold">{selected.title}</h3>
+                      <div className="text-sm text-gray-500">{selected.phase} • {selected.year} • {new Date(selected.releaseDate).toLocaleDateString()}</div>
+                    </div>
+                    <button onClick={() => setSelected(null)} className="text-sm text-gray-500">关闭</button>
+                  </div>
+
+                  <p className="mt-4 text-gray-700 dark:text-gray-300">{selected.synopsis}</p>
+
+                  <div className="mt-6">
+                    <h5 className="font-semibold">预告</h5>
+                    <div className="mt-3 aspect-video rounded overflow-hidden shadow-lg">
+                      {/* YouTube embed: replace videoId with real trailer ID. Allow fullscreen. */}
+                      <iframe
+                        title={`trailer-${selected.id}`}
+                        src={`https://www.youtube.com/embed/${selected.trailer}?autoplay=0&rel=0`}
+                        className="w-full h-full"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex gap-3">
+                    <button onClick={() => alert('分享功能示例：复制链接')} className="py-2 px-4 rounded bg-indigo-600 text-white">分享</button>
+                    <button onClick={() => alert('加入观看清单（示例）')} className="py-2 px-4 rounded bg-gray-200 dark:bg-gray-700">加入清单</button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </div>
     </div>
-  </nav>
+  );
+}
 
-  <!-- 首页 Hero -->
-  <section class="flex flex-col items-center justify-center text-center py-24 px-6 bg-white shadow-sm">
-    <h2 class="text-4xl font-bold mb-4">你好，我是<span class="text-blue-500">你的名字</span></h2>
-    <p class="text-lg text-gray-600 max-w-xl">这里写一句简短介绍，例如“热爱哲学与科技的学习者”</p>
-  </section>
+/*
+Usage notes & deployment tips:
+1. Install dependencies: framer-motion, lucide-react, tailwindcss.
+   npm i framer-motion lucide-react
 
-  <!-- 关于我 -->
-  <section id="about" class="max-w-4xl mx-auto py-16 px-6">
-    <h3 class="text-3xl font-semibold mb-6">关于我</h3>
-    <p class="text-gray-700 leading-relaxed">
-      这里写你的背景、兴趣、目标。例如：我是一名大学生，喜欢哲学、游戏与编程，希望将哲学思想应用到现实生活中。
-    </p>
-  </section>
+2. Tailwind CSS: configure per your project (https://tailwindcss.com/docs/installation).
 
-  <!-- 作品展示 -->
-  <section id="projects" class="max-w-6xl mx-auto py-16 px-6 bg-gray-100">
-    <h3 class="text-3xl font-semibold mb-6">我的作品</h3>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-white shadow p-4 rounded-lg">
-        <h4 class="font-bold mb-2">项目标题</h4>
-        <p class="text-sm text-gray-600">项目简短介绍...</p>
-      </div>
-      <div class="bg-white shadow p-4 rounded-lg">
-        <h4 class="font-bold mb-2">项目标题</h4>
-        <p class="text-sm text-gray-600">项目简短介绍...</p>
-      </div>
-      <div class="bg-white shadow p-4 rounded-lg">
-        <h4 class="font-bold mb-2">项目标题</h4>
-        <p class="text-sm text-gray-600">项目简短介绍...</p>
-      </div>
-    </div>
-  </section>
+3. Replace placeholder images (Unsplash links) with official posters/backdrops and update YouTube trailer IDs.
 
-  <!-- 联系方式 -->
-  <section id="contact" class="max-w-4xl mx-auto py-16 px-6">
-    <h3 class="text-3xl font-semibold mb-6">联系我</h3>
-    <p class="text-gray-700 mb-4">邮箱：<a href="mailto:you@example.com" class="text-blue-500">you@example.com</a></p>
-    <p class="text-gray-700">GitHub：<a href="#" class="text-blue-500">github.com/你的账号</a></p>
-  </section>
+4. For production: fetch a full MCU dataset (titles, phases, release dates, poster URLs, trailer IDs) from a reliable source or build your own JSON file.
 
-  <!-- 页脚 -->
-  <footer class="text-center py-6 text-sm text-gray-500">
-    © 2025 你的名字. 保留所有权利.
-  </footer>
+5. To deploy to GitHub Pages: build the project (npm run build) and push the build branch to gh-pages, or use GitHub Actions. If using Vite, use "vite-plugin-static-copy" or the recommended GH Pages instructions.
 
-</body>
-</html>
+6. Accessibility: add alt text to real images, ensure color contrast for dark mode.
+
+Enhancements you can ask me to add:
+- Persistent user accounts and comments
+- Full interactive draggable year scrubber synced to timeline
+- Search suggestions and fuzzy-match search
+- Mobile-friendly responsive tweaks
+- Auto-updating upcoming films via a CMS or API
+*/
